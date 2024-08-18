@@ -55,7 +55,8 @@ private:
   int32 aniStream = -1;
 };
 
-static const es::Matrix44 corMat({0, 0, -1, 0}, {-1, 0, 0, 0}, {0, 1, 0, 0},
+static const float IN_TO_M = 0.0254 * 0.9144; // inch to yard to meter
+static const es::Matrix44 corMat({0, 0, 1, 0}, {1, 0, 0, 0}, {0, 1, 0, 0},
                                  {0, 0, 0, 1});
 
 void LoadAnim(GLTFAni &main, std::istream &istr, std::string animName) {
@@ -343,7 +344,7 @@ void LoadAnim(GLTFAni &main, std::istream &istr, std::string animName) {
       sampl.output = accid;
 
       auto WriteTranslation = [&](Vector pos_) {
-        Vector4A16 pos(pos_);
+        Vector4A16 pos(pos_ * IN_TO_M);
 
         if (b.parentId < 0) {
           pos = pos * corMat;

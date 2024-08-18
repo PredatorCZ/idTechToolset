@@ -78,8 +78,9 @@ private:
   int32 vtStream = -1;
 };
 
-static const es::Matrix44 corMat({0, 0, -1, 0}, {-1, 0, 0, 0}, {0, 1, 0, 0},
-                                 {0, 0, 0, 1});
+static const float IN_TO_M = 0.0254 * 0.9144; // inch to yard to meter
+static const es::Matrix44 corMat({0, 0, IN_TO_M, 0}, {IN_TO_M, 0, 0, 0},
+                                 {0, IN_TO_M, 0, 0}, {0, 0, 0, 1});
 
 inline bool fltcmp(float f0, float f1, float epsilon = 0.0001) {
   return (f1 <= f0 + epsilon) && (f1 >= f0 - epsilon);
@@ -307,7 +308,7 @@ void AppProcessFile(AppContext *ctx) {
     gNode.name = b.name;
     Vector4A16 quat(b.rotation);
     quat.QComputeElement();
-    Vector4A16 pos(b.position, 1);
+    Vector4A16 pos(b.position * IN_TO_M, 1);
     b.tm = quat;
     b.tm.r4() = pos;
     b.tm.Transpose();
@@ -361,7 +362,7 @@ void AppProcessFile(AppContext *ctx) {
           Bone &bone = bones.at(mWeight.boneId);
           vert.boneIds[w] = mWeight.boneId;
           vert.boneWeights[w] = std::round(mWeight.weight * 0xff);
-          Vector4A16 tpos(Vector4A16(mWeight.position, 1) * bone.tm);
+          Vector4A16 tpos(Vector4A16(mWeight.position * IN_TO_M, 1) * bone.tm);
           Vector bPos(Vector4A16(tpos * mWeight.weight));
           vert.position += bPos;
         }
